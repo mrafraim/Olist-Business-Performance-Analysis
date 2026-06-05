@@ -22,5 +22,4 @@ Ensure the following files are unzipped and saved in this folder before executin
 The remaining schema entities are stored here for subsequent deployment phases:
 * `product_category_name_translation.csv`
 * `olist_sellers_dataset.csv`
-* `olist_customers_dataset.csv`
 * `olist_geolocation_dataset.csv`
