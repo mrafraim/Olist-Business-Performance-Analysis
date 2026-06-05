@@ -1,0 +1,11 @@
+# Ignore raw data files (they are too large for GitHub)
+data/*.csv
+*.csv
+
+# Ignore system-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore local configuration or temporary files
+*.log
+*.tmp
