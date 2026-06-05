@@ -192,4 +192,99 @@ Output:
 
 ![REVENUE DISTRIBUTION BY CATEGORY](outputs/3.2.jpg)
 
-Looking at your category list, we can immediately see that `beleza_saude` (Beauty & Health) and `relogios_presentes` (Watches & Gifts) are heavy hitters, while your "unassigned" category sits right in the middle with over $178k in unmapped revenue.
+Looking at our category list, we can immediately see that `beleza_saude` (Beauty & Health) and `relogios_presentes` (Watches & Gifts) are heavy hitters, while your "unassigned" category sits right in the middle with over $178k in unmapped revenue.
+
+## The Pareto Query (80/20 Rule)
+
+Instead of just looking at the raw numbers, we need to know exactly which top categories combine to generate 80% of that $13.49 million total revenue.
+
+```sql
+-- =============================================================================
+-- STEP 3: PARETO ANALYSIS (80/20 RULE) ON PRODUCT CATEGORIES
+-- Goal: Calculate running revenues and cumulative percentages to isolate the 
+--       exact product categories driving 80% of platform turnover.
+-- =============================================================================
+
+WITH CategoryRevenue AS (
+    -- Subquery 1: Extract baseline revenue per category (excluding canceled/unavailable)
+    SELECT 
+        COALESCE(p.product_category_name, 'unassigned') AS category_name,
+        SUM(oi.price) AS category_revenue
+    FROM olist_order_items oi
+    JOIN olist_products p ON oi.product_id = p.product_id
+    WHERE oi.order_id IN (
+        SELECT order_id 
+        FROM olist_orders 
+        WHERE order_status NOT IN ('canceled', 'unavailable')
+    )
+    GROUP BY p.product_category_name
+),
+RunningCalculations AS (
+    -- Subquery 2: Compute running total revenue and get the absolute grand total
+    SELECT 
+        category_name,
+        category_revenue,
+        -- Running total orders from highest revenue to lowest
+        SUM(category_revenue) OVER (ORDER BY category_revenue DESC) AS running_revenue,
+        -- Total revenue across the entire platform for percentage math
+        SUM(category_revenue) OVER () AS total_platform_revenue
+    FROM CategoryRevenue
+)
+-- Step 3: Output categories alongside their cumulative financial share
+SELECT 
+    category_name,
+    ROUND(category_revenue::NUMERIC, 2) AS category_revenue,
+    ROUND(((running_revenue / total_platform_revenue) * 100)::NUMERIC, 2) AS cumulative_percentage
+FROM RunningCalculations
+ORDER BY category_revenue DESC;
+```
+Output:
+
+![PARETO ANALYSIS (80/20 RULE) ON PRODUCT CATEGORIES](outputs/3.3.jpg)
+
+ A revenue concentration analysis was executed across all 74 active product categories to determine the true financial drivers of the platform.
+ 
+* **The Core Drivers:** Just 18 categories (24% of the catalog) generate **81.26%** of total gross revenue ($10.96 Million).
+* **Top Heavy Performers:** The top two categories alone, **Health & Beauty** (`beleza_saude`) and **Watches & Gifts** (`relogios_presentes`), drive nearly **18.2%** of all revenue on their own.
+* **The Long Tail:** The remaining 56 categories account for less than 19% of financial turnover, representing lower-velocity inventory.
+
+> **Decision:**
+> 1. **Supply Chain Prioritization:** Recommend that fulfillment centers optimize warehouse layouts to place these 18 high-velocity categories closest to packing stations to decrease handling time.
+>
+> 2. **Marketing Focus:** Budget allocation should prioritize customer retention programs within the top 5 categories (`beleza_saude` down to `informatica_acessorios`), as they form the core revenue engine of the ecosystem.
+
+## Supply Chain Audit: Delivery Latency & Estimation Accuracy
+
+```sql
+-- =============================================================================
+-- STEP 4: OPERATIONAL SHIPPING LATENCY & PREDICTION ACCURACY
+-- Goal: Calculate average fulfillment times and determine how many days 
+--       ahead or behind schedule packages are arriving.
+-- Filter: Focus exclusively on completed 'delivered' orders and exclude the 
+--         8 anomalous rows we found during data cleaning.
+-- =============================================================================
+
+SELECT 
+    -- 1. Average actual days from purchase to customer delivery
+    ROUND(AVG(EXTRACT(EPOCH FROM (order_delivered_customer_date - order_purchase_timestamp)) / 86400)::NUMERIC, 1) AS avg_actual_delivery_days,
+    
+    -- 2. Average days promised to the customer at checkout
+    ROUND(AVG(EXTRACT(EPOCH FROM (order_estimated_delivery_date - order_purchase_timestamp)) / 86400)::NUMERIC, 1) AS avg_estimated_delivery_days,
+    
+    -- 3. Variance: positive number = arrived early, negative number = arrived late
+    ROUND(AVG(EXTRACT(EPOCH FROM (order_estimated_delivery_date - order_delivered_customer_date)) / 86400)::NUMERIC, 1) AS avg_days_ahead_of_schedule
+FROM olist_orders
+WHERE order_status = 'delivered'
+  AND order_delivered_customer_date IS NOT NULL;
+```
+Output:
+
+![OPERATIONAL SHIPPING LATENCY & PREDICTION ACCURACY](outputs/3.4.jpg)
+
+
+A performance baseline was established across 96,470 completed deliveries to measure actual logistics speeds against customer-facing expectations.
+* **Actual Logistics Velocity:** The average end-to-end delivery cycle from order placement to customer receipt is **12.6 days**.
+* **The Estimation Gap:** Platform algorithms estimate a checkout delivery window of **23.7 days**, resulting in packages arriving an average of **11.2 days early**.
+
+> **Insight:**
+> While an early delivery boosts customer satisfaction, a 23+ day shipping estimate at checkout creates a significant barrier to purchase. The operations team should recalibrate the predictive shipping algorithms to tighten this window closer to 15–18 days, unlocking higher checkout conversion rates without risking late deliveries.
