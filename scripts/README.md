@@ -4,7 +4,7 @@ Raw data is never perfectly clean. Before creating high-level KPIs, business das
 
 We have created a brand new script for this entire phase:
 
-`📁 03_data_cleaning_eda.sql`
+`📁 02_data_cleaning_eda.sql`
 
 ## 1. Data Quality Assessment: Fulfillment Timelines
 
@@ -132,3 +132,64 @@ An audit of our product database was conducted across 32,951 unique items to ens
 
 > **Decision:** To prevent these 610 products from disappearing from sales performance dashboards, we have introduced a `COALESCE` safety net to dynamically group them under **"unassigned"**. A translation mapping file will be applied during the final reporting phase to convert Portuguese terms to English (e.g., transforming *cama_mesa_banho* to *Bed, Bath & Table*).
 
+# Core Business Intelligence (KPIs)
+
+Now that our data engine is loaded and we understand its quirks, it’s time to move from Data Cleaning to Business Intelligence. This is where we answer the big questions that the CEO, CFO, and VP of Operations care about.
+
+We have created a brand new script for this milestone:
+
+`📁 03_business_kpis.sql`
+
+## The Financial Baseline
+
+```sql
+-- =============================================================================
+-- STEP 1: GLOBAL FINANCIAL BASELINE
+-- Goal: Calculate undisputed totals for Revenue, Volume, and AOV.
+-- Filter: Exclude non-transactional states (canceled/unavailable).
+-- =============================================================================
+
+SELECT 
+    ROUND(SUM(price)::NUMERIC, 2) AS total_revenue,
+    COUNT(DISTINCT order_id) AS total_orders,
+    ROUND((SUM(price) / COUNT(DISTINCT order_id))::NUMERIC, 2) AS average_order_value
+FROM olist_order_items
+WHERE order_id IN (
+    SELECT order_id 
+    FROM olist_orders 
+    WHERE order_status NOT IN ('canceled', 'unavailable')
+);
+```
+Output:
+
+![GLOBAL FINANCIAL BASELINE](outputs/3.1.jpg)
+
+We have 13.49 million in gross revenue across 98,199 successful orders, yielding an Average Order Value (AOV) of $137.42.
+
+## Category Performance 
+
+```sql
+-- =============================================================================
+-- STEP 2: REVENUE DISTRIBUTION BY CATEGORY
+-- Goal: Break down total revenue and order volume by product category.
+-- =============================================================================
+
+SELECT 
+    COALESCE(p.product_category_name, 'unassigned') AS category_name,
+    ROUND(SUM(oi.price)::NUMERIC, 2) AS category_revenue,
+    COUNT(DISTINCT oi.order_id) AS category_orders
+FROM olist_order_items oi
+JOIN olist_products p ON oi.product_id = p.product_id
+WHERE oi.order_id IN (
+    SELECT order_id 
+    FROM olist_orders 
+    WHERE order_status NOT IN ('canceled', 'unavailable')
+)
+GROUP BY p.product_category_name
+ORDER BY category_revenue DESC;
+```
+Output:
+
+![REVENUE DISTRIBUTION BY CATEGORY](outputs/3.2.jpg)
+
+Looking at your category list, we can immediately see that `beleza_saude` (Beauty & Health) and `relogios_presentes` (Watches & Gifts) are heavy hitters, while your "unassigned" category sits right in the middle with over $178k in unmapped revenue.
