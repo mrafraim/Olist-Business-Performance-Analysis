@@ -6,7 +6,7 @@ We have created a brand new script for this entire phase:
 
 `📁 03_data_cleaning_eda.sql`
 
-## Data Quality Assessment: Fulfillment Timelines
+## 1. Data Quality Assessment: Fulfillment Timelines
 
 ```sql
 -- =============================================================================
@@ -33,9 +33,9 @@ Output:
 
 ![ANALYZING MISSING DELIVERY DATES BY ORDER STATUS](outputs/2.1.jpg)
 
-We found 8 orders marked "delivered" that are missing a delivery date. To keep our shipping stats accurate, we are leaving these 8 orders out of our calculations.
+> **Decision:** We found 8 orders marked "delivered" that are missing a delivery date. To keep our shipping stats accurate, we are leaving these 8 orders out of our calculations.
 
-## Structural Root-Cause Analysis of Delivery Anomalies
+## 2. Structural Root-Cause Analysis of Delivery Anomalies
 
 ```sql
 -- =============================================================================
@@ -68,7 +68,67 @@ When we isolated those 8 broken orders, we found a clear pattern:
 
 Because these errors happened at almost the same time, this wasn't a human typing mistake. It points heavily to a temporary **software glitch or a system connection failure** with our delivery partners during that specific summer window.
 
-#### Our Business Action Plan
-
 > **Decision:** Exclude these 8 orders from shipping speed reports.
 > Since we can't guess the exact days these packages arrived, we will programmatically skip these 8 specific orders when calculating our "Average Shipping Times." Leaving them in would break our formulas, but removing them ensures our business dashboards remain **100% accurate.**
+
+## 3. Product Catalog Audit: Data Gaps Identified
+
+```sql
+-- =============================================================================
+-- STEP 3: CATEGORICAL DATA AUDIT (PRODUCTS TABLE)
+-- Goal: Identify all unique product categories, count how many products belong 
+--       to each, and check for NULL or empty category names.
+-- =============================================================================
+
+SELECT 
+    product_category_name,
+    COUNT(*) AS total_products
+FROM olist_products
+GROUP BY product_category_name
+ORDER BY total_products DESC
+```
+Output:
+
+![CATEGORICAL DATA AUDIT](outputs/2.3.jpg)
+
+### The Two Major Issues Uncovered
+
+#### 1. The "Ghost" Category (The Blank Row)
+
+Look closely right between `pet_shop` and `eletronicos`. There is a row with **610 products** where the `product_category_name` is completely empty (blank/NULL).
+
+* **The Business Problem:** If 610 products don't have a category, they won't show up when customers browse by department on the website. For us, it means we have hidden revenue we can't properly attribute to a specific department.
+
+#### 2. The Language Barrier (Portuguese)
+
+The category names are in Portuguese (e.g., `cama_mesa_banho` means *Bed, Table, & Bath*, and `esporte_lazer` means *Sports & Leisure*).
+
+* **The Business Problem:** If you present a chart to an English-speaking executive board showing that our top category is `cama_mesa_banho`, they will lose interest instantly. We need to translate these into English before building any dashboards.
+
+## 4. The Professional Fix
+
+```sql
+-- =============================================================================
+-- STEP 4: CLEANING MISSING PRODUCT CATEGORIES
+-- Goal: Test a transformation that replaces blank/NULL category names with 
+--       'unassigned'. This ensures all products can be counted in business reports.
+-- =============================================================================
+
+SELECT 
+    -- COALESCE replaces a NULL value with whatever placeholder text we choose
+    COALESCE(product_category_name, 'unassigned') AS cleaned_category_name,
+    COUNT(*) AS total_products
+FROM olist_products
+GROUP BY cleaned_category_name
+ORDER BY total_products DESC;
+```
+Output:
+
+![CLEANING MISSING PRODUCT CATEGORIES](outputs/2.4.jpg)
+
+An audit of our product database was conducted across 32,951 unique items to ensure clean categorical reporting.
+* **The Finding:** 610 products were discovered with missing (NULL) category names, representing a data gap in inventory tracking.
+* **The Localization Challenge:** Catalog categories are currently stored in Portuguese, requiring a translation layer before executive reporting.
+
+> **Decision:** To prevent these 610 products from disappearing from sales performance dashboards, we have introduced a `COALESCE` safety net to dynamically group them under **"unassigned"**. A translation mapping file will be applied during the final reporting phase to convert Portuguese terms to English (e.g., transforming *cama_mesa_banho* to *Bed, Bath & Table*).
+
