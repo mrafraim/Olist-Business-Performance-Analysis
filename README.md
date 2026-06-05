@@ -85,3 +85,9 @@ To maintain strict data governance boundaries and prevent scope creep, specific 
 1. **`olist_order_payments` (Affordability Analytics):** Evaluate correlation between installment use and AOV. Determine if adding Buy-Now-Pay-Later options can expand customer order size.
 2. **`olist_sellers` (Supply Chain Bottleneck Isolation):** Determine whether fulfillment delays stem from regional seller backlogs or carrier infrastructure deficits.
 3. **`olist_customers` & `olist_geolocation` (Spatial Expansion Strategies):** Model regional customer demand clusters to recommend optimal geographic points for building physical fulfillment centers.
+
+---
+<p style="text-align:center; color:skyblue; font-size:18px;">
+© 2026 Mostafizur Rahman
+</p>
+
