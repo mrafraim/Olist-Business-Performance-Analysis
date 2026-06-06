@@ -1,4 +1,4 @@
-# Olist E-Commerce Business Performance Analysis & Strategic Recommendations
+# Olist E-Commerce Business Performance Analysis & Growth Strategy
 
 **Lead Data Analyst:** Mostafizur Rahman
 
