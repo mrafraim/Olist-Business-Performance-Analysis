@@ -2,32 +2,50 @@
 
 **Lead Data Analyst:** Mostafizur Rahman
 
-**Project Stage:** Phase 1
-
-**Data Source:**[Olist Public E-Commerce Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+**Data Source:** [Olist Public E-Commerce Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
 
 ---
 
 ## 1. Executive Summary
 
-This comprehensive performance report marks the completion of the baseline analytics audit for the Olist e-commerce ecosystem. By engineering an end-to-end relational data pipeline from fragmented source files into structured relational database environments, we isolated crucial technical anomalies, stabilized catalog metadata, and generated high-impact operational KPIs.
+This report presents the key findings from our analysis of the Olist e-commerce business data.
 
-The objective of this analysis is to transform raw, transaction-level metrics into a definitive business strategy. The analysis reveals a highly concentrated revenue structure matching standard Pareto conditions alongside an operational shipping paradigm characterized by significant margin cushions but vulnerable to checkout cart abandonment due to over-conservative predictive algorithms.
+To conduct this analysis, we collected and organized data from multiple sources into a structured database, allowing us to accurately evaluate sales performance, customer behavior, product performance, and operational efficiency. During this process, data quality issues were identified and addressed to ensure reliable insights.
 
-## 2. Pillar 1: Financial Performance Baseline
+Our analysis highlights several important business findings:
 
-To protect accounting integrity, global baselines were computed by filtering out non-transactional and non-realized order states (such as canceled and unavailable orders). The platform performance baseline is established as follows:
+* Revenue is highly concentrated among a relatively small number of products and sellers, following the common 80/20 (Pareto) pattern.
+* The company maintains a healthy buffer between estimated and actual delivery times, helping ensure orders are delivered on time.
+* However, delivery estimates may be more conservative than necessary, which can increase shipping expectations shown to customers during checkout.
+* Longer or less competitive delivery estimates may contribute to customers abandoning their carts before completing purchases.
+* The findings identify opportunities to improve customer experience, optimize delivery promises, and further increase sales performance.
 
-* **Gross Revenue:** $13,494,400.74
-* **Successful Orders:** 98,199
+Overall, this report converts raw transaction data into actionable business insights that can support better operational decisions, improve customer satisfaction, and drive future growth.
+
+
+## 2. Financial Performance Baseline
+
+To ensure accurate financial reporting, cancelled and unavailable orders were excluded from the analysis. The platform's core performance metrics are:
+
+* **Gross Revenue:** $13.49 Million
+* **Completed Orders:** 98,199
 * **Average Order Value (AOV):** $137.42
 
-### Market Concentration Analysis (The 80/20 Rule)
+### Revenue Concentration Analysis (80/20 Principle)
 
-* **The Situation:** The platform sells products across 74 different categories. Managing marketing budgets and warehouse space across that many departments is incredibly expensive and inefficient if some categories aren't selling well.
-* **The Analysis:** By writing advanced ranking formulas, we discovered that **just 18 core categories (24% of the catalog) generate 81.26% of gross marketplace revenue ($10.96 Million).** The remaining 56 categories are a "long tail" of low-velocity items that take up space but contribute less than 19% of total revenue.
+#### Key Finding
 
-| Rank | Product Category Name (Raw) | Gross Revenue ($) | Cumulative Share (%) |
+Although the platform offers products across **74 categories**, revenue is heavily concentrated in a small number of them.
+
+Our analysis shows that:
+
+* **18 categories (24% of all categories)** generate **81.26% of total revenue**.
+* These categories contribute approximately **$10.96 Million** in sales.
+* The remaining **56 categories** generate only **18.74% of revenue** despite representing the majority of the catalog.
+
+This indicates that the business relies heavily on a relatively small group of high-performing categories.
+
+| Rank | Category | Gross Revenue ($) | Cumulative Share (%) |
 | --- | --- | --- | --- |
 | 1 | beleza_saude (Health & Beauty) | 1,255,695.13 | 9.31% |
 | 2 | relogios_presentes (Watches & Gifts) | 1,198,185.21 | 18.18% |
@@ -36,55 +54,183 @@ To protect accounting integrity, global baselines were computed by filtering out
 | ... | ... | ... | ... |
 | 17 | pcs (Computers / Systems) | 222,963.13 | 79.68% |
 | **18** | **pet_shop (Pet Supplies) [Pareto Cutoff]** | **213,766.63** | **81.26%** |
-| - | Remaining 56 Long-Tail Categories | 2,530,111.90 | 18.74% |
+| - | Remaining 56 Categories | 2,530,111.90 | 18.74% |
 
-* **The Strategic Recommendation:**
-1. **Warehouse Layout Realignment:** Move these top 18 high-velocity categories to the front of the fulfillment centers (Zone-A racking) right next to the packing stations. This will drastically shorten walking distances for warehouse pickers and speed up packing times.
-2. **Marketing Capital Allocation:** Stop spreading advertisement spending evenly across the entire catalog. Pivot the budget to aggressively focus on customer acquisition and retention within the top 5 flagship categories (like Health & Beauty and Watches) to protect and scale our primary revenue engine.
+### Business Impact
 
-## 3. Pillars 2 & 3: Logistics Velocity & Customer Sentiment Intersection
+The data clearly shows that a small number of categories are driving the majority of the company's revenue. These categories should be treated as strategic priorities because their performance has a significant impact on overall business results.
 
-An operational evaluation was performed across 96,470 validated deliveries to track exact transit durations against user-facing expectations established at checkout.
+### Recommendations
 
-* **Avg. Actual Transit:** 12.6 Days
-* **Avg. Promised Window:** 23.7 Days
-* **Avg. Early Arrival Cushion:** 11.2 Days
+#### 1. Optimize Warehouse Operations
 
-### Shipping Velocity vs. Customer Sentiment
+Place products from the top-performing categories closer to packing and shipping areas within fulfillment centers.
 
-* **The Situation:** To protect against unexpected delays, our platform's checkout screen quotes a highly conservative delivery estimate of **23.7 days**. In reality, our logistics network delivers packages in an average of **12.6 days**—meaning orders arrive **11.2 days early**.
-* **The Analysis:** While arriving early creates a great "surprise" experience, a 24-day shipping promise at checkout scares away potential buyers, causing massive shopping cart abandonment. Furthermore, looking at our customer reviews reveals a strict emotional breaking point: **customer patience drops off a cliff after 14 days in transit.** When a delivery stretches to 21.3 days, a 1-star review is practically guaranteed, completely destroying customer retention.
+**Expected Benefits:**
 
-| Review Score | Volume (Orders) | Avg. Actual Transit (Days) | Avg. Days Ahead of Promised Schedule | Sentiment Status |
-| --- | --- | --- | --- | --- |
-| ⭐⭐⭐⭐⭐ | 56,810 | 10.7 | +12.7 | 😍 Excellent Compliance |
-| ⭐⭐⭐⭐ | 18,943 | 12.3 | +11.7 | 🙂 High Compliance |
-| ⭐⭐⭐ | 7,942 | 14.3 | +10.1 | 😐 Moderate Risk |
-| ⭐⭐ | 2,938 | 16.7 | +7.9 | 🙁 High Degradation |
-| ⭐ | 9,380 | 21.3 | +3.4 | 🤬 Severe Brand Damage |
+* Faster order processing
+* Reduced picker travel time
+* Improved warehouse efficiency
+* Faster shipment preparation
 
-> **Critical Finding:** 1-star reviews outnumber 2-star and 3-star reviews combined. The drop-off in customer sentiment is not linear. Once transit times cross the 14-day threshold, customer tolerance drops off entirely. A package taking 21.3 days triggers severe brand damage, even if it technically lands within the original over-conservative estimated window.
+#### 2. Prioritize Marketing Investment
 
-* **The Strategic Recommendation:**
-1. **Algorithmic Calibration (The Sweet Spot):** Compress the public checkout delivery estimate down to a dynamic **14 to 15-day window**. This immediately makes our storefront highly competitive (reclaiming abandoned shopping carts) while still keeping a safe 2.4-day operational cushion above our actual 12.6-day delivery average.
-2. **Proactive CRM Alerts:** Program an automated system alert that flags any order hitting day 14 in transit. This allows the customer service team to step in, proactively communicate delays, and issue a discount voucher *before* the customer gets angry and leaves a damaging 1-star review.
+Focus marketing and promotional budgets on the highest-performing categories instead of distributing spending evenly across all categories.
 
-## 4. Technical Data Governance & Quality Logs
+**Expected Benefits:**
 
-To ensure this pipeline remains production-grade, two core architectural transformations were written into the codebase to mitigate structural data errors:
+* Higher return on marketing investment (ROI)
+* Increased customer acquisition in proven categories
+* Stronger growth in the platform's primary revenue drivers
 
-* **Delivery Timestamp Gaps (8 Records):** Identified 8 orders explicitly flagged as "delivered" that lacked customer-receipt timestamps. Root-cause analysis isolated temporal clustering (75% occurred between June and July 2018), confirming an API sync or ERP connection error rather than manual typing mistakes.
-*Action Taken:* Programmatically excluded from delivery latency calculations to avoid formula syntax errors.
-* **Product Catalog Anomalies (610 Records):** Identified 610 inventory products lacking category designations. Left unaddressed, these items drop off categorical sales indices.
-*Action Taken:* Implemented a SQL `COALESCE` fallback filter to dynamically re-index items as `'unassigned'`, recovering visibility for $178,572.55 in revenue.
+> #### Management Takeaway
 
-## 5. Strategic Growth Horizon (Phase 2 Roadmap)
+> **Just 24% of product categories generate more than 81% of total revenue.** Protecting and growing these key categories should be a top business priority, while lower-performing categories should be reviewed for optimization, consolidation, or selective investment.
 
-To maintain strict data governance boundaries and prevent scope creep, specific database entities were left untouched during Phase 1. These elements are mapped out below as part of the strategic Phase 2 platform deployment roadmap:
+## 3. Delivery Performance & Customer Satisfaction
 
-1. **`olist_order_payments` (Affordability Analytics):** Evaluate correlation between installment use and AOV. Determine if adding Buy-Now-Pay-Later options can expand customer order size.
-2. **`olist_sellers` (Supply Chain Bottleneck Isolation):** Determine whether fulfillment delays stem from regional seller backlogs or carrier infrastructure deficits.
-3. **`olist_customers` & `olist_geolocation` (Spatial Expansion Strategies):** Model regional customer demand clusters to recommend optimal geographic points for building physical fulfillment centers.
+To evaluate delivery efficiency and customer experience, we analyzed **96,470 successfully delivered orders** and compared actual delivery times with the delivery estimates shown to customers at checkout.
+
+### Delivery Performance Summary
+
+* **Average Actual Delivery Time:** 12.6 days
+* **Average Promised Delivery Time:** 23.7 days
+* **Average Early Delivery:** 11.2 days ahead of schedule
+
+### Key Finding
+
+The platform consistently delivers orders much faster than promised. On average, customers receive their orders **11.2 days earlier** than the delivery estimate displayed during checkout.
+
+While early delivery creates a positive customer experience, displaying a delivery estimate of nearly **24 days** may discourage some customers from completing their purchases. Long delivery promises can make the platform appear slower than competitors, potentially increasing cart abandonment before an order is placed.
+
+### Delivery Time vs Customer Reviews
+
+The analysis also shows a strong relationship between delivery speed and customer satisfaction.
+
+| Review Score | Orders | Avg. Delivery Time (Days) | Avg. Days Early | Customer Sentiment  |
+| ------------ | ------ | ------------------------- | --------------- | ------------------- |
+| ⭐⭐⭐⭐⭐        | 56,810 | 10.7                      | 12.7            | Excellent           |
+| ⭐⭐⭐⭐         | 18,943 | 12.3                      | 11.7            | Very Good           |
+| ⭐⭐⭐          | 7,942  | 14.3                      | 10.1            | Neutral             |
+| ⭐⭐           | 2,938  | 16.7                      | 7.9             | Dissatisfied        |
+| ⭐            | 9,380  | 21.3                      | 3.4             | Highly Dissatisfied |
+
+### Customer Experience Insight
+
+Customer satisfaction remains strong when deliveries are completed within approximately **14 days**. However, ratings decline significantly as delivery times increase beyond this point.
+
+Notably:
+
+* Average delivery time for 5-star reviews is only **10.7 days**.
+* Average delivery time for 1-star reviews rises to **21.3 days**.
+* The decline in satisfaction accelerates after the **14-day mark**, indicating that delivery speed is a major driver of customer perception.
+
+### Business Impact
+
+Although most orders arrive earlier than promised, customers primarily judge their experience based on how long they actually wait, not how much earlier the order arrives compared to the estimate.
+
+This means that deliveries taking more than two weeks present a higher risk of negative reviews, lower customer satisfaction, and reduced repeat purchases.
+
+### Recommendations
+
+#### 1. Review Delivery Promise Strategy
+
+Consider reducing checkout delivery estimates from the current average of **23.7 days** to a more competitive range based on actual delivery performance and regional delivery history.
+
+**Expected Benefits:**
+
+* Improved conversion rates
+* Reduced cart abandonment
+* Stronger competitive positioning
+* More accurate customer expectations
+
+#### 2. Implement Delivery Risk Monitoring
+
+Create automated alerts for orders approaching **14 days in transit** so customer service teams can proactively engage affected customers.
+
+**Expected Benefits:**
+
+* Reduced negative reviews
+* Better customer communication
+* Higher customer trust
+* Improved retention and repeat purchases
+
+> ### Management Takeaway
+
+> The logistics network is performing well, delivering orders in an average of **12.6 days**. However, customer satisfaction declines sharply when delivery times exceed **14 days**. Improving delivery promises and proactively managing delayed orders represent significant opportunities to increase customer satisfaction, protect brand reputation, and improve conversion rates.
+
+## 4. Data Quality & Governance
+
+Ensuring data accuracy was a critical part of this analysis. During the project, several data quality issues were identified and addressed to improve the reliability of reporting and business insights.
+
+### Key Data Quality Findings
+
+#### 1. Missing Delivery Confirmation Dates
+
+We identified **8 orders** that were marked as successfully delivered but did not contain a customer delivery confirmation date.
+
+Further investigation showed that most of these records occurred during the same period (June–July 2018), suggesting a system synchronization or data integration issue rather than manual data entry errors.
+
+**Action Taken:**
+
+* These records were excluded from delivery-time calculations to prevent inaccurate performance metrics.
+* The issue was documented for future system monitoring and investigation.
+
+#### 2. Missing Product Categories
+
+We identified **610 products** that did not have an assigned product category.
+
+Without correction, sales generated by these products would not appear in category-level performance reports, leading to incomplete business analysis.
+
+**Action Taken:**
+
+* A data quality rule was implemented to automatically classify uncategorized products as **"Unassigned"**.
+* This ensured that all product sales remained visible in reporting and analysis.
+
+**Business Impact:**
+
+* Recovered visibility for **$178,572.55** in revenue that would otherwise have been excluded from category-based reporting.
+
+### Why This Matters
+
+Reliable business decisions depend on reliable data. Addressing these issues improved the accuracy of revenue analysis, category performance reporting, and delivery performance metrics.
+
+> ### Management Takeaway
+
+> The overall data quality was strong, with only a small number of records requiring correction. By resolving these issues, we improved reporting accuracy and ensured that approximately **$178,000+ in sales** remained visible in business performance analyses. This strengthens confidence in the insights and recommendations presented throughout this report.
+
+## 5. Future Growth Opportunities (Phase 2 Roadmap)
+
+Phase 1 focused on establishing key business performance metrics and operational insights. The following areas are recommended for Phase 2 analysis:
+
+### 1. Payment Behavior Analysis
+
+**Data Source:** `olist_order_payments`
+
+Analyze how payment methods and installment plans affect customer spending and Average Order Value (AOV).
+
+**Opportunity:** Evaluate whether Buy Now, Pay Later (BNPL) or expanded installment options could increase sales and order values.
+
+### 2. Seller Performance Analysis
+
+**Data Source:** `olist_sellers`
+
+Investigate seller-level fulfillment performance to identify the root causes of delivery delays.
+
+**Opportunity:** Determine whether delays originate from seller operations or logistics infrastructure.
+
+### 3. Customer & Geographic Analysis
+
+**Data Sources:** `olist_customers`, `olist_geolocation`
+
+Analyze customer demand across regions and identify high-growth markets.
+
+**Opportunity:** Support decisions on future fulfillment center locations to reduce delivery times and shipping costs.
+
+> ### Management Takeaway
+
+> Phase 2 should focus on **customer spending behavior, seller performance, and geographic expansion opportunities** to drive revenue growth, improve operational efficiency, and strengthen customer experience.
+
 
 ---
 <p style="text-align:center; color:skyblue; font-size:18px;">
